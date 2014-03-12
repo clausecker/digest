@@ -1,0 +1,54 @@
+.TH DIGEST 1
+.SH NAME
+digest \- Calculate various message digests
+
+.SH SYNOPSIS
+\fBdigest \fR[
+.BI -d <digest>
+\fR]
+.IR file ...
+
+.B digest
+.B -h
+
+\fIdigest\fBsum
+.IR file ...
+
+.SH DESCRIPTION
+\fBdigest\fR computes message digests of the supplied files. Different kinds of
+message digests are available and can be selected with the
+.BI -d digest
+option. Typically \fBdigest\fR is installed as \fBmd5sum\fR, \fBsha1sum\fR, etc.
+In this case, \fBdigest\fR automatically detects the digest to compute. Calling
+\fBdigest\fR with no arguments, or with \fB-h\fR gives a brief reminder of
+\fBdigest\fR's options and a list of supported digests.
+
+The following message digest and checksum algorithms are supported if enabled
+at compile time: Adler-32, BSD style checksum, CRC-32 (IEEE polynomial), MD5,
+SHA-1, SHA-224, SHA-256.
+
+.SH NOTES
+Even though \fBdigest\fR can compute both BSD-style and POSIX CRC-32 checksums,
+\fBdigest\fR is neither a drop-in replacement for
+.BR sum (1)
+nor for
+.BR cksum (1).
+These programs output a checksum in decimal followed by a block-count / file
+size. \fBdigest\fR always prints a big-endian hexadecimal checksum followed by
+two blanks followed by a filename.
+
+.SH AUTHOR
+Written by Robert Clausecker <fuzxxl@gmail.com>.
+
+.SH SEE ALSO
+.BR sum (1),
+.BR cksum (1)
+
+
+
+
+
+
+
+
+
