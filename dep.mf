@@ -1,6 +1,10 @@
 adler32.o: adler32.c adler32.h digest.h
 bsd.o: bsd.c bsd.h digest.h
-crc32.o: crc32.c crc32.h crc32tab.h digest.h
-md5.o: md5.c md5.h md5tab.h digest.h
-sha1.o: sha1.c sha1.h digest.h
-sha2.o: sha2.c sha2.h sha2tab.h digest.h
+main.o: main.c adler32.h digest.h bsd.h crc32.h md5.h sha1.h sha2.h
+crc32.o: crc32.c crc32.h digest.h crc32tab.h
+md5.o: md5.c finalize.h digest.h md5.h md5tab.h
+sha1.o: sha1.c finalize.h digest.h sha1.h
+sha2.o: sha2.c finalize.h digest.h sha2.h sha2tab.h
+finalize.o: finalize.c finalize.h digest.h
+mkmd5tab.o: mkmd5tab.c
+main.o: main.c adler32.h digest.h bsd.h crc32.h md5.h sha1.h sha2.h

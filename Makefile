@@ -1,15 +1,15 @@
-CC=cc -stack 16k
-CFLAGS=-O # -O2 triggers compiler bug in acc
+CC=cc
+CFLAGS=-O3 -Wall -Wextra -Wno-parentheses # -O2 triggers compiler bug in acc
 RM=rm -f
 
-SRC=adler32.o bsd.c crc32.c md5.c sha1.c sha2.c finalize.c
+SRC=adler32.c bsd.c main.c crc32.c md5.c sha1.c sha2.c finalize.c
 OBJ=adler32.o bsd.o main.o crc32.o md5.o sha1.o sha2.o finalize.o
 DIGESTBIN=adler32sum bsdsum crc32sum md5sum sha1sum sha256sum sha224sum
 BINARY=digest
-#AUXBIN=mkmd5tab mksha2tab mkcrc32tab
-AUXBIN=mkmd5tab mkcrc32tab
-#AUXHDR=crc32tab.h md5tab.h sha2tab.h
-AUXHDR=crc32tab.h md5tab.h
+AUXBIN=mkmd5tab mksha2tab mkcrc32tab
+#AUXBIN=mkmd5tab mkcrc32tab
+AUXHDR=crc32tab.h md5tab.h sha2tab.h
+#AUXHDR=crc32tab.h md5tab.h
 DEST=/usr
 
 all: $(BINARY)
@@ -17,7 +17,7 @@ all: $(BINARY)
 include dep.mf
 
 dep:
-	$(CC) -MM -MG $(SRC) mkmd5tab.c main.c >dep.mf
+	$(CC) -MM -MG $(SRC) mkmd5tab.c >dep.mf
 
 $(BINARY): $(OBJ)
 	$(CC) -o $@ $(OBJ)
@@ -28,8 +28,8 @@ md5tab.h: mkmd5tab
 mkmd5tab: mkmd5tab.c
 	$(CC) $(CFLAGS) -o $@ mkmd5tab.c -lm
 
-#sha2tab.h: mksha2tab
-#	./mksha2tab >$@
+sha2tab.h: mksha2tab
+	./mksha2tab >$@
 
 mksha2tab: mksha2tab.c
 	$(CC) $(CFLAGS) -o $@ mksha2tab.c -lm
