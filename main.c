@@ -1,6 +1,6 @@
 #include <alloca.h>
 #include <errno.h>
-#include <getopt.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,16 +11,17 @@
 #include "md5.h"
 #include "sha1.h"
 #include "sha2.h"
+#include "output.h"
 
 /* list of all available digest modules. Remove modules to save space. */
 static const struct digest_descr digests[] = {
-	DIGEST_DESCR(ADLER32,adler32),
-	DIGEST_DESCR(BSD,bsd),
-	DIGEST_DESCR(CRC32,crc32),
-	DIGEST_DESCR(MD5,md5),
-	DIGEST_DESCR(SHA1,sha1),
-	DIGEST_DESCR(SHA224,sha224),
-	DIGEST_DESCR(SHA256,sha256),
+	DIGEST_DESCR('x',ADLER32,adler32),
+	DIGEST_DESCR('b',BSD,bsd),
+	DIGEST_DESCR('x',CRC32,crc32),
+	DIGEST_DESCR('x',MD5,md5),
+	DIGEST_DESCR('x',SHA1,sha1),
+	DIGEST_DESCR('x',SHA224,sha224),
+	DIGEST_DESCR('x',SHA256,sha256),
 };
 
 enum {
@@ -28,44 +29,54 @@ enum {
 	DIGESTCOUNT = sizeof digests / sizeof*digests,
 };
 
-static const struct digest_descr *get_digest(char*,char*);
+static const struct digest_descr *get_digest(const char*,const char*);
 static void help(const char*);
-static int file_digest(const struct digest_descr*,const char*);
-static void digest2str(const uint8_t*,char*,size_t);
+static int file_digest(const struct digest_descr*,const char*,enum digest_format);
 
 int main(int argc, char **argv) {
 	const struct digest_descr *digest;
-	int i, error = EXIT_SUCCESS;
-	char *digestname = NULL;
-	int c;
+	int c, i, error = EXIT_SUCCESS, fchar = 0;
+	const char *algorithm = NULL, *fptr;
+	enum digest_format f;
 
-	while ((c = getopt(argc, argv, "d:h")) != EOF) switch (c) {
-		case '?': /* fallthrough */
+	while ((c = getopt(argc, argv, "a:f:hrs")) != EOF) switch (c) {
+		case 'a': algorithm = optarg; break;
+		case 'f': fchar = *optarg; break;
 		case 'h': help(argv[0]); return 0;
-		case 'd': digestname = optarg; break;
+		case 'r': algorithm = "bsd"; break;
+		case 's': algorithm = "sysv"; break;
+		case '?': help(argv[0]); return 1;
 	};
 
-	digest = get_digest(argv[0], digestname);
+	digest = get_digest(argv[0], algorithm);
 
 	if (digest == NULL) {
-		fputs("Cannot figure out what digest you want. Try passing -d <digest>\n", stderr);
+		fputs("Cannot figure out what digest you want. Try passing -a <digest>\n", stderr);
 		help(argv[0]);
-		return 1;
+		return EXIT_FAILURE;
 	}
 
-	if (argc < 2) {
-		help(argv[0]);
-		return 1;
+	if (fchar == 0) fchar = digest->fchar;
+	if (NULL == (fptr = strchr(formats, fchar))) {
+		fputs("Unknown format character.\n", stderr);
+		return EXIT_FAILURE;
+	}
+
+	f = (enum digest_format)(fptr - formats);
+
+	/* no file names provided, read stdin */
+	if (argc <= optind) {
+		return file_digest(digest, "", f);
 	}
 
 	for (i = optind; i < argc; i++)
-		if (file_digest(digest, argv[i])) error = EXIT_FAILURE;
+		if (file_digest(digest, argv[i], f)) error = EXIT_FAILURE;
 
 	return error;
 }
 
-static const struct digest_descr *get_digest(char *program, char *name) {
-	char *base = strrchr(program,'/');
+static const struct digest_descr *get_digest(const char *program, const char *name) {
+	const char *base = strrchr(program,'/');
 	int i;
 
 	if (base++ == NULL) base = program;
@@ -83,7 +94,7 @@ static void help(const char *program) {
 
 	fputs("Usage: ", stderr);
 	fputs(program, stderr);
-	fputs(" [-h | -d <digest>] file...\nAvailable digests: ", stderr);
+	fputs(" [-hrs] [-f format] [-a algorithm] file...\nAvailable algorithms: ", stderr);
 	for (i = 0; i < DIGESTCOUNT - 1; i++) {
 		fputs(digests[i].name, stderr);
 		fputs(", ", stderr);
@@ -93,14 +104,15 @@ static void help(const char *program) {
 	putc('\n', stderr);
 }
 
-static int file_digest(const struct digest_descr *d, const char *filename) {
+static int file_digest(const struct digest_descr *d, const char *filename, enum digest_format f) {
 	FILE *file;
-	size_t len;
+	size_t len, flen = 0;
 	union digest_state *state;
 	uint8_t *block, *digest;
-	char *str;
+	int err;
 
-	if (strcmp(filename, "-")) file = fopen(filename, "rb");
+	if (*filename != '\0' && strcmp(filename, "-"))
+		file = fopen(filename, "rb");
 	else file = stdin;
 
 	if (file == NULL) {
@@ -114,8 +126,12 @@ static int file_digest(const struct digest_descr *d, const char *filename) {
 	memcpy(state, d->init, d->statelen);
 
 	block = alloca(d->blocklen);
-	while (d->blocklen == (len = fread(block, 1, d->blocklen, file)))
+	while (d->blocklen == (len = fread(block, 1, d->blocklen, file))) {
 		d->block(state, block);
+		flen += len;
+	}
+
+	flen += len;
 
 	if (!feof(file)) {
 		fputs("Error reading file ", stderr);
@@ -127,25 +143,9 @@ static int file_digest(const struct digest_descr *d, const char *filename) {
 	digest = alloca(d->digestlen);
 	d->final(state, block, len, digest);
 
-	str = alloca(d->digestlen*2 + 1);
-	digest2str(digest, str, d->digestlen);
-	fputs(str, stdout);
-	fputs("  ", stdout);
-	puts(filename);
+	err = format_digest(digest, d->digestlen, flen, filename, f);
 
 	if (strcmp(filename, "-")) fclose(file);
 
-	return 0;
-}
-
-static void digest2str(const uint8_t *buf, char *str, size_t len) {
-	static const char hextab[16] = "0123456789abcdef";
-	size_t i;
-
-	for (i = 0; i < len; i++) {
-		str[2*i] = hextab[buf[i] >> 4];
-		str[2*i+1] = hextab[buf[i] & 0xf];
-	}
-
-	str[2*i] = '\0';
+	return err;
 }
