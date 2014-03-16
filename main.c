@@ -16,15 +16,24 @@
 
 /* list of all available digest modules. Remove modules to save space. */
 static const struct digest_descr digests[] = {
-	DIGEST_DESCR('x',ADLER32,adler32),
-	DIGEST_DESCR('b',BSD,bsd),
-	DIGEST_DESCR('c',CKSUM,cksum),
-	DIGEST_DESCR('x',CRC32,crc32),
-	DIGEST_DESCR('x',MD5,md5),
-	DIGEST_DESCR('x',SHA1,sha1),
-	DIGEST_DESCR('x',SHA224,sha224),
-	DIGEST_DESCR('x',SHA256,sha256),
-	DIGEST_DESCR('s',SYSV,sysv),
+	DIGEST_DESCR(0,'x',"adler32",ADLER32,adler32),
+	DIGEST_DESCR(0,'b',"bsd",BSD,bsd),
+	DIGEST_DESCR(0,'c',"cksum",CKSUM,cksum),
+	DIGEST_DESCR(0,'x',"crc32",CRC32,crc32),
+	DIGEST_DESCR(0,'x',"md5",MD5,md5),
+	DIGEST_DESCR(0,'x',"sha1",SHA1,sha1),
+	DIGEST_DESCR(0,'x',"sha224",SHA224,sha224),
+	DIGEST_DESCR(0,'x',"sha256",SHA256,sha256),
+
+	/* duplicates for compatibility with other tools */
+	DIGEST_DESCR(1,'b',"sum",BSD,bsd), /* compatibility with sum */
+	DIGEST_DESCR(1,'x',"sha",SHA1,sha1), /* compatibilit with shasum */
+	DIGEST_DESCR(1,'x',"1",SHA1,sha1),
+	DIGEST_DESCR(1,'x',"224",SHA224,sha224),
+	DIGEST_DESCR(1,'x',"256",SHA256,sha256),
+
+	/* table may not end with a hidden entry */
+	DIGEST_DESCR(0,'s',"sysv",SYSV,sysv),
 };
 
 enum {
@@ -68,7 +77,7 @@ int main(int argc, char **argv) {
 
 	/* no file names provided, read stdin */
 	if (argc <= optind) {
-		return file_digest(digest, "", f);
+		return file_digest(digest, NULL, f);
 	}
 
 	for (i = optind; i < argc; i++)
@@ -97,7 +106,7 @@ static void help(const char *program) {
 	fputs("Usage: ", stderr);
 	fputs(program, stderr);
 	fputs(" [-hrs] [-f bclsx] [-a algorithm] file...\nAvailable algorithms: ", stderr);
-	for (i = 0; i < DIGESTCOUNT - 1; i++) {
+	for (i = 0; i < DIGESTCOUNT - 1; i++) if (!digests[i].hide) {
 		fputs(digests[i].name, stderr);
 		fputs(", ", stderr);
 	}
@@ -113,7 +122,7 @@ static int file_digest(const struct digest_descr *d, const char *filename, enum 
 	uint8_t *block, *digest;
 	int err;
 
-	if (*filename != '\0' && strcmp(filename, "-"))
+	if (filename != NULL && strcmp(filename, "-"))
 		file = fopen(filename, "rb");
 	else file = stdin;
 
@@ -145,6 +154,7 @@ static int file_digest(const struct digest_descr *d, const char *filename, enum 
 	digest = alloca(d->digestlen);
 	d->final(state, block, len, digest);
 
+	if (filename == NULL) filename = "";
 	err = format_digest(digest, d->digestlen, flen, filename, f);
 
 	if (strcmp(filename, "-")) fclose(file);

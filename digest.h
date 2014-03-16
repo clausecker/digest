@@ -15,18 +15,20 @@ struct digest_descr {
 	digest_block *block;
 	digest_final *final;
 	const char name[9];
-	const char fchar;
+	const char fchar;	/* formatting character */
+	const char hide;	/* hide digest from help screen? */
 	unsigned short int blocklen;
 	unsigned short int digestlen;
 	unsigned short int statelen;
 };
 
-#define DIGEST_DESCR(format, NAME, name) {		\
+#define DIGEST_DESCR(hide, format, str, NAME, name) {	\
 	(const union digest_state*)&name ## _init,	\
 	name ## _block,					\
 	name ## _final,					\
-	# name "\0",					\
+	str "\0",					\
 	format,						\
+	hide,						\
 	NAME ## _BLOCKLEN,				\
 	NAME ## _DIGESTLEN,				\
 	sizeof(struct name ## _state),			\

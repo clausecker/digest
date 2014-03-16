@@ -32,7 +32,9 @@ at compile time: Adler-32, BSD style checksum, POSIX \fBcksum\fR(1), CRC-32
 Select a message digest algorithm. This flag is only neccessary if the algorithm
 cannot be deducted from the program name. Possible values for \fIalgorithm\fR
 are \fBadler32\fR, \fBbsd\fR, \fBcksum\fR, \fBcrc32\fR, \fBmd5\fR, \fBsha1\fR,
-\fBsha224\fR, \fBsha256\fR and \fBsysv\fR.
+\fBsha224\fR, \fBsha256\fR and \fBsysv\fR. \fB-a\fR also accepts some other
+values to be a drop-in replacement for
+.BR shasum (1).
 
 .IP \fB-f\fIformat
 Select an output format. Most algorithms default to the \fBx\fR output format,
