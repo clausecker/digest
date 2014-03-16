@@ -4,7 +4,7 @@
 #include <string.h>
 #include "output.h"
 
-const char formats[] = "bcsxy\0";
+const char formats[] = "bclsx\0";
 
 static void digest2hex(char*,const uint8_t*,size_t);
 static char *short2str(char[6],uint16_t);
@@ -20,9 +20,9 @@ static formatter format_hexlen;
 static formatter *formatters[] = {
 	format_bsd,
 	format_posix,
+	format_hexlen,
 	format_sysv,
 	format_hex,
-	format_hexlen,
 };
 
 extern int format_digest(

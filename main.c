@@ -28,7 +28,6 @@ static const struct digest_descr digests[] = {
 };
 
 enum {
-	BUFLEN = 4096,
 	DIGESTCOUNT = sizeof digests / sizeof*digests,
 };
 
@@ -54,7 +53,7 @@ int main(int argc, char **argv) {
 	digest = get_digest(argv[0], algorithm);
 
 	if (digest == NULL) {
-		fputs("Cannot figure out what digest you want. Try passing -a <digest>\n", stderr);
+		fputs("Cannot figure out what algorithm you want. Try passing -a algorithm.\n", stderr);
 		help(argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -97,7 +96,7 @@ static void help(const char *program) {
 
 	fputs("Usage: ", stderr);
 	fputs(program, stderr);
-	fputs(" [-hrs] [-f format] [-a algorithm] file...\nAvailable algorithms: ", stderr);
+	fputs(" [-hrs] [-f bclsx] [-a algorithm] file...\nAvailable algorithms: ", stderr);
 	for (i = 0; i < DIGESTCOUNT - 1; i++) {
 		fputs(digests[i].name, stderr);
 		fputs(", ", stderr);

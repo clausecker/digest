@@ -47,7 +47,12 @@ Used BSD format as used by
 Default for the \fBbsd\fR digest. (16)
 
 .IP \fBc
-Use \fBcksum\fR format, as defined in POSIX.1 2008. (16, 32)
+Use
+.BR cksum (1)
+format, as defined in POSIX.1 2008. (16, 32)
+
+.IP \fBl
+Show checksum in hexadecimal followed by length followed by filename.
 
 .IP \fBs
 Use System V format, as used by
@@ -56,9 +61,6 @@ Default for the \fBsysv\fR digest. (16)
 
 .IP \fBx
 Show checksum in hexadecimal followed by two spaces, followed by a filename.
-
-.IP \fBy
-Show checksum in hexadecimal followed by length followed by filename.
 
 .RE
 
@@ -79,7 +81,9 @@ Written by Robert Clausecker <fuzxxl@gmail.com>.
 
 .SH SEE ALSO
 .BR sum (1),
-.BR cksum (1)
+.BR cksum (1),
+.BR md5sum (1),
+.BR shasum (1)
 
 
 

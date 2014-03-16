@@ -12,9 +12,9 @@ extern const char formats[];
 enum digest_format {
 	/* b */ BSD_FORMAT,
 	/* c */ POSIX_FORMAT,
+	/* l */ HEXLEN_FORMAT,
 	/* s */ SYSV_FORMAT,
 	/* x */ HEX_FORMAT,
-	/* y */ HEXLEN_FORMAT,
 	/* 0 */ UNKNOWN_FORMAT,
 };
 
