@@ -6,7 +6,7 @@
 #include <string.h>
 #include "adler32.h"
 #include "bsd.h"
-#include "digest.h"
+#include "cksum.h"
 #include "crc32.h"
 #include "md5.h"
 #include "sha1.h"
@@ -17,6 +17,7 @@
 static const struct digest_descr digests[] = {
 	DIGEST_DESCR('x',ADLER32,adler32),
 	DIGEST_DESCR('b',BSD,bsd),
+	DIGEST_DESCR('c',CKSUM,cksum),
 	DIGEST_DESCR('x',CRC32,crc32),
 	DIGEST_DESCR('x',MD5,md5),
 	DIGEST_DESCR('x',SHA1,sha1),
