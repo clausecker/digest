@@ -7,7 +7,6 @@
 /* a union digest_state is a union of all available digest state types. */
 union digest_state;
 
-typedef void digest_init(union digest_state*);
 typedef void digest_block(union digest_state*,const uint8_t*);
 typedef void digest_final(union digest_state*,uint8_t*,size_t,uint8_t*);
 

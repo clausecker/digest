@@ -11,6 +11,7 @@
 #include "md5.h"
 #include "sha1.h"
 #include "sha2.h"
+#include "sysv.h"
 #include "output.h"
 
 /* list of all available digest modules. Remove modules to save space. */
@@ -23,6 +24,7 @@ static const struct digest_descr digests[] = {
 	DIGEST_DESCR('x',SHA1,sha1),
 	DIGEST_DESCR('x',SHA224,sha224),
 	DIGEST_DESCR('x',SHA256,sha256),
+	DIGEST_DESCR('s',SYSV,sysv),
 };
 
 enum {

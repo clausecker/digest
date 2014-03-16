@@ -24,15 +24,15 @@ In this case, \fBdigest\fR automatically detects the digest to compute. Calling
 \fBdigest\fR's options and a list of supported digests.
 
 The following message digest and checksum algorithms are supported if enabled
-at compile time: Adler-32, BSD style checksum, CRC-32 (IEEE polynomial), MD5,
-SHA-1, SHA-224, SHA-256.
+at compile time: Adler-32, BSD style checksum, POSIX \fBcksum\fR(1), CRC-32
+(IEEE polynomial), MD5, SHA-1, SHA-224, SHA-256, System V style checksum.
 
 .SH OPTIONS
 .IP \fB-a\fIalgorithm
 Select a message digest algorithm. This flag is only neccessary if the algorithm
 cannot be deducted from the program name. Possible values for \fIalgorithm\fR
-are \fBadler32\fR, \fBbsd\fR, \fBcrc32\fR, \fBmd5\fR, \fBsha1\fR, \fBsha224\fR,
-and \fBsha256\fR.
+are \fBadler32\fR, \fBbsd\fR, \fBcksum\fR, \fBcrc32\fR, \fBmd5\fR, \fBsha1\fR,
+\fBsha224\fR, \fBsha256\fR and \fBsysv\fR.
 
 .IP \fB-f\fIformat
 Select an output format. Most algorithms default to the \fBx\fR output format,
