@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 
 	/* no file names provided, read stdin */
 	if (argc <= optind) {
-		return file_digest(digest, NULL, f);
+		return file_digest(digest, "", f);
 	}
 
 	for (i = optind; i < argc; i++)
@@ -122,7 +122,7 @@ static int file_digest(const struct digest_descr *d, const char *filename, enum 
 	uint8_t *block, *digest;
 	int err;
 
-	if (filename != NULL && strcmp(filename, "-"))
+	if (*filename != '\0' && strcmp(filename, "-"))
 		file = fopen(filename, "rb");
 	else file = stdin;
 

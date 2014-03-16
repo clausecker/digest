@@ -6,6 +6,7 @@
 
 const char formats[] = "bclsx\0";
 
+static void printpath(const char*);
 static void digest2hex(char*,const uint8_t*,size_t);
 static char *short2str(char[6],uint16_t);
 static char *int2str(char[11],uint32_t);
@@ -42,6 +43,7 @@ static int format_hex(const uint8_t *p, size_t plen, off_t flen, const char *pat
 	digest2hex(hexdigest, p, plen);
 	fputs(hexdigest, stdout);
 	fputs("  ", stdout);
+	if (*path == '\0') path = "-";
 	puts(path);
 
 	return 0;
@@ -55,6 +57,7 @@ static int format_hexlen(const uint8_t *p, size_t plen, off_t flen, const char *
 	putc(' ', stdout);
 	int2str(buf, flen);
 	fputs(buf, stdout);
+	if (*path == '\0') path = "-";
 	puts(path);
 
 	return 0;
@@ -71,8 +74,9 @@ static int format_posix(const uint8_t *p, size_t plen, off_t flen, const char *p
 	}
 
 	fputs(int2str(buf, digest), stdout);
+	buf[10] = '\0';
 	fputs(int2str(buf, flen), stdout);
-	puts(path);
+	printpath(path);
 
 	return 0;
 }
@@ -91,15 +95,16 @@ static int format_bsd(const uint8_t *p, size_t plen, off_t flen, const char *pat
 	/* Implementation restriction: Can only hash files with up to 64 MiB */
 	if (flen >= UINT16_MAX * 1024) {
 		fputs("File too large for this format\n", stderr);
-		fputs("????? ", stdout);
-		puts(path);
+		fputs("?????", stdout);
+		printpath(path);
 		return 1;
 	} else {
 		flen = (flen + 1023) >> 10;
 		memset(buf, ' ', 5);
 		short2str(buf, flen);
+		buf[5] = '\0';
 		fputs(buf, stdout);
-		puts(path);
+		printpath(path);
 		return 0;
 	}
 }
@@ -120,14 +125,24 @@ static int format_sysv(const uint8_t *p, size_t plen, off_t flen, const char *pa
 	/* Implementation restriction: Can only hash files with up to 32 MiB */
 	if (flen > UINT16_MAX * 512) {
 		fputs("File too large for this format\n", stderr);
-		fputs("????? ", stdout);
-		puts(path);
+		fputs("?????", stdout);
+		printpath(path);
 		return 1;
 	} else {
 		flen = (flen + 511) >> 9;
+		buf[5] = '\0';
 		fputs(short2str(buf, flen), stdout);
-		puts(path);
+		printpath(path);
 		return 0;
+	}
+}
+
+static void printpath(const char *path) {
+	if (*path != '\0') {
+		putchar(' ');
+		puts(path);
+	} else {
+		putchar('\n');
 	}
 }
 
