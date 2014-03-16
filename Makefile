@@ -1,12 +1,16 @@
 CC=clang -m32
-CFLAGS=-O3 -Wall -Wextra -Wno-parentheses # -O2 triggers compiler bug in acc
+CFLAGS=-Os -Wall -Wextra -Wno-parentheses # -O2 triggers compiler bug in acc
 RM=rm -f
 
 SRC=adler32.c bsd.c cksum.c main.c crc32.c md5.c sha1.c sha2.c finalize.c output.c sysv.c
 OBJ=adler32.o bsd.o cksum.o main.o crc32.o md5.o sha1.o sha2.o finalize.o output.o sysv.o
 DIGESTBIN=adler32sum bsdsum cksum crc32sum md5sum sha1sum sha256sum sha224sum sum
 BINARY=digest
-DEST=./proto
+# Change these to the appropriate directories of your operating system
+PREFIX=/usr/local
+BINDIR=$(PREFIX)/bin
+MANDIR=$(PREFIX)/share/man
+
 
 all: $(BINARY)
 
@@ -22,8 +26,8 @@ clean:
 	$(RM) $(BINARY) *.o
 
 install: $(BINARY)
-	mkdir -p $(DEST)/bin
-	mkdir -p $(DEST)/man/man1
-	cp $(BINARY) $(DEST)/bin
-	for i in $(DIGESTBIN) ; do ln -f $(DEST)/bin/$(BINARY) $(DEST)/bin/$$i ; done
-	cp $(BINARY).1 $(DEST)/man/man1
+	mkdir -p $(BINDIR)
+	mkdir -p $(MANDIR)/man1
+	cp $(BINARY) $(BINDIR)
+	for i in $(DIGESTBIN) ; do ln -f $(BINDIR)/$(BINARY) $(BINDIR)/$$i ; done
+	cp $(BINARY).1 $(MANDIR)/man1
