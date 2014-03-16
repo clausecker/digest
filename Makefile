@@ -6,10 +6,6 @@ SRC=adler32.c bsd.c main.c crc32.c md5.c sha1.c sha2.c finalize.c output.c
 OBJ=adler32.o bsd.o main.o crc32.o md5.o sha1.o sha2.o finalize.o output.o
 DIGESTBIN=adler32sum bsdsum crc32sum md5sum sha1sum sha256sum sha224sum
 BINARY=digest
-AUXBIN=mkmd5tab mksha2tab mkcrc32tab
-#AUXBIN=mkmd5tab mkcrc32tab
-AUXHDR=crc32tab.h md5tab.h sha2tab.h
-#AUXHDR=crc32tab.h md5tab.h
 DEST=/usr
 
 all: $(BINARY)
@@ -17,31 +13,13 @@ all: $(BINARY)
 include dep.mf
 
 dep:
-	$(CC) -MM -MG $(SRC) mkmd5tab.c >dep.mf
+	$(CC) -MM -MG $(SRC) >dep.mf
 
 $(BINARY): $(OBJ)
-	$(CC) -o $@ $(OBJ)
-
-md5tab.h: mkmd5tab
-	./mkmd5tab >$@
-
-mkmd5tab: mkmd5tab.c
-	$(CC) $(CFLAGS) -o $@ mkmd5tab.c -lm
-
-sha2tab.h: mksha2tab
-	./mksha2tab >$@
-
-mksha2tab: mksha2tab.c
-	$(CC) $(CFLAGS) -o $@ mksha2tab.c -lm
-
-crc32tab.h: mkcrc32tab
-	./mkcrc32tab >$@
-
-mkcrc32tab: mkcrc32tab.c
-	$(CC) $(CFLAGS) -o $@ mkcrc32tab.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
 
 clean:
-	$(RM) $(BINARY) $(AUXBIN) $(AUXHDR) *.o
+	$(RM) $(BINARY) *.o
 
 install: $(BINARY)
 	mkdir -p $(DEST)/bin
