@@ -1,0 +1,16 @@
+digest is a tiny program to compute various kinds of digests. digest is designed
+to be a drop-in-replacement for the following utilities: sum, cksum, shasum,
+sha1sum, sha224sum, and sha256sum. It is capable of computing a wide range of
+checksums. See digest.1 for more details.
+
+digest should compile on any unixoid platform. The code uses only C89 language
+features, some C99 headers (stdint.h) and POSIX functions. The only non-standard
+function digest uses is alloca(). digest assumes that alloca is declared in
+<stdlib.h>.
+
+In cksum mode, digest mostly obeys POSIX, except for the fact that it still
+supports all its flags, even though POSIX states that cksum takes no flags.
+
+This program installs itself as a series of hardlinks for all the programs it
+can emulate. If you want to add or remove digests, edit main.c and remove the
+appropriate lines from digests.
